@@ -1,8 +1,6 @@
 FROM golang:1.14 AS builder
 ENV CGO_ENABLED=0
-COPY server.go go.mod go.sum /app
-WORKDIR /app
-RUN go build .
+RUN go get -u github.com/neoaggelos/dslab4-server
 
 FROM alpine:latest
 COPY --from=builder /app/dslab4-server /dslab4-server
