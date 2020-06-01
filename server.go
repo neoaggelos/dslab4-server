@@ -55,7 +55,7 @@ func binMarshal(v3msg *v3Message) []byte {
 	))
 }
 
-// listen connects to the MQTT server and forwards packets to the upstream channel
+// listen connects to the MQTT server and updates the lastMessage
 func listen() {
 	uri, err := url.Parse(mqttServer)
 	if err != nil {
@@ -82,7 +82,7 @@ func listen() {
 	})
 }
 
-// connections listens on a UDP port for new clients
+// connections listens on a TCP port for new clients
 func connections() {
 	l, err := net.Listen("tcp", bind)
 	if err != nil {
@@ -101,6 +101,7 @@ func connections() {
 	}
 }
 
+// handleConn handles a TCP connection
 func handleConn(conn net.Conn) {
 	addr := conn.RemoteAddr().String()
 	buffer := make([]byte, 100)
@@ -192,10 +193,9 @@ func main() {
 
 	re = regexp.MustCompile(`\d \w+ \w+ .+`)
 
-	done = make(chan struct{}, 1)
-
 	go listen()
 	go connections()
 
+	done = make(chan struct{}, 1)
 	<-done
 }
