@@ -62,7 +62,7 @@ func dummydata() {
 		msg := &v3Message{}
 		msg.UplinkMessage.ReceivedAt = time.Now()
 		msg.UplinkMessage.FPort = 2 + mrand.Intn(3)
-		msg.UplinkMessage.DecodedPayload.Temperature = 0.15 + 0.15*mrand.Float32()
+		msg.UplinkMessage.DecodedPayload.Temperature = 15 + 15*mrand.Float32()
 		msg.UplinkMessage.DecodedPayload.Light = 20 + mrand.Intn(80)
 
 		fmt.Printf("[DM] New message: %v\n", msg)
