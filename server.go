@@ -55,11 +55,28 @@ func binMarshal(v3msg *v3Message) []byte {
 	))
 }
 
+func dummydata() {
+	t := time.NewTicker(time.Minute)
+	mrand.Seed(time.Now().Unix())
+	for {
+		msg := &v3Message{}
+		msg.UplinkMessage.ReceivedAt = time.Now()
+		msg.UplinkMessage.FPort = 2 + mrand.Intn(3)
+		msg.UplinkMessage.DecodedPayload.Temperature = 0.15 + 0.15*mrand.Float32()
+		msg.UplinkMessage.DecodedPayload.Light = 20 + mrand.Intn(80)
+
+		fmt.Printf("[DM] New message: %v\n", msg)
+		lastMessage = binMarshal(msg)
+		<-t.C
+	}
+}
+
 // listen connects to the MQTT server and updates the lastMessage
 func listen() {
 	uri, err := url.Parse(mqttServer)
-	if err != nil {
-		panic(err)
+	if mqttServer == "" || err != nil {
+		fmt.Println("No MQTT address, will use dummy data")
+		dummydata()
 	}
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(fmt.Sprintf("tcp://%s", uri.Host))
@@ -127,7 +144,7 @@ func handleConn(conn net.Conn) {
 		} else if req := re.FindString(msg); req != "" {
 			count := 5 + mrand.Intn(5)
 			_buf := make([]byte, count)
-			n, err := rand.Read(_buf)
+			_, err := rand.Read(_buf)
 			buf := []byte(hex.EncodeToString(_buf))
 			bufWithNewline := []byte(hex.EncodeToString(_buf))
 
